@@ -1,23 +1,30 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useMemo } from "react";
 import MovieCard from "./MovieCard";
 import axios from "axios";
 import Pagination from "./Pagination";
+import { SearchContext } from "./SearchContext";
 
-function Movie({handleAddWatchlist, removeFromWatchlist, watchlists}) {
+function Movie({ handleAddWatchlist, removeFromWatchlist, watchlists }) {
   const [movie, setMovie] = useState([]);
-  const [pageNo, setPageNo]= useState(1)
+  const [pageNo, setPageNo] = useState(1);
+  const { searchText } = useContext(SearchContext);
 
-  const handlePrev = ()=>{
-    if(pageNo ==1){
-        setPageNo(pageNo)
-    }else{
-    setPageNo(pageNo-1)
+  const filteredMovies = useMemo(() => {
+    return movie.filter((mov) =>
+      mov.title.toLowerCase().includes(searchText.toLowerCase())
+    );
+  }, [movie, searchText]);
+  const handlePrev = () => {
+    if (pageNo == 1) {
+      setPageNo(pageNo);
+    } else {
+      setPageNo(pageNo - 1);
     }
-  }
+  };
 
-  const handleNext =()=>{
-    setPageNo(pageNo+1)
-  }
+  const handleNext = () => {
+    setPageNo(pageNo + 1);
+  };
 
   useEffect(() => {
     axios
@@ -35,16 +42,25 @@ function Movie({handleAddWatchlist, removeFromWatchlist, watchlists}) {
       <div className="text-2xl font-bold text-center p-5">Trending Movies</div>
 
       <div className="flex flex-row justify-around flex-wrap">
-        {movie.map((movObj) => {
-          return <MovieCard posterPath={movObj.poster_path} key={movObj.id} title={movObj.title} handleAddWatchlist={handleAddWatchlist} movObj={movObj} removeFromWatchlist={removeFromWatchlist} watchlists={watchlists}/>;
-        })}
+        {filteredMovies.map((movObj) => (
+          <MovieCard
+            key={movObj.id}
+            posterPath={movObj.poster_path}
+            title={movObj.title}
+            movObj={movObj}
+            handleAddWatchlist={handleAddWatchlist}
+            removeFromWatchlist={removeFromWatchlist}
+            watchlists={watchlists}
+          />
+        ))}
       </div>
-        <Pagination pageNo={pageNo} handlePrev={handlePrev} handleNext={handleNext}/>
+      <Pagination
+        pageNo={pageNo}
+        handlePrev={handlePrev}
+        handleNext={handleNext}
+      />
     </div>
-
   );
-  
-
 }
 
 export default Movie;

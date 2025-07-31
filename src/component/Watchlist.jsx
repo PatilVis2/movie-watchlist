@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import genreMap from "../utility/genre"
+import { SearchContext } from "./SearchContext";
+
 
 function Watchlist({ watchlists, setWatchlists, removeFromWatchlist }) {
   const [search, setSearch] = useState("");
   const [genrelist, setGenrelist] = useState(['All genre'])
   const [getCurrentGenre, setCurrentGenre]= useState('All genre')
+  const {searchText} = useContext(SearchContext)
 
   let handleSearch = (e) => {
     setSearch(e.target.value);
@@ -15,6 +18,13 @@ function Watchlist({ watchlists, setWatchlists, removeFromWatchlist }) {
   let handlefilter= (genre)=>{
     setCurrentGenre(genre)
   }
+
+  const filteredMovies = useMemo(() => {
+  return watchlists.filter((mov) =>
+    mov.title.toLowerCase().includes(searchText.toLowerCase())
+  );
+}, [watchlists, searchText]);
+
   let sortByAc = () => {
     let ascSort = [...watchlists].sort((movieA, movieB) => {
       return movieA.vote_average - movieB.vote_average;
@@ -128,7 +138,7 @@ function Watchlist({ watchlists, setWatchlists, removeFromWatchlist }) {
           </thead>
 
           <tbody className="">
-            {watchlists.filter((movObj)=>{
+            {filteredMovies.filter((movObj)=>{
               if(getCurrentGenre == 'All genre'){
                 return true
               }else{

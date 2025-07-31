@@ -1,13 +1,23 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import Logo from "../pngwing.com.png";
 import Show from "../show.png";
 import SearchIcon from "@mui/icons-material/Search";
 import MenuIcon from "@mui/icons-material/Menu";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import SignUpModal from "./SignUpModal";
 import Select from "react-select";
+import { SearchContext } from "./SearchContext";
 
 function Navbar() {
+  const searchRef = useRef();
+  const location = useLocation();
+
+  const { searchText, setSearchText } = useContext(SearchContext);
+
+  useEffect(() => {
+    searchRef.current?.focus();
+  }, [location.pathname]);
+
   const [isSignupOpen, setIsSignupOpen] = useState(false);
 
   const cityOptions = [
@@ -37,6 +47,8 @@ function Navbar() {
               <SearchIcon fontSize="small" />
             </span>
             <input
+              ref={searchRef}
+              onChange={(e) => setSearchText(e.target.value)}
               type="text"
               placeholder="Search..."
               className="w-full pl-4 pr-10 py-2 border border-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-400"
@@ -53,7 +65,7 @@ function Navbar() {
                 borderColor: "#cbd5e0",
                 paddingTop: "0.25rem",
                 paddingBottom: "0.25rem",
-                borderRadius: "0.375rem", 
+                borderRadius: "0.375rem",
                 boxShadow: "none",
                 "&:hover": { borderColor: "#0ea5e9" },
               }),

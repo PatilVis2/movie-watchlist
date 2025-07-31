@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import "./App.css";
 import "tailwindcss";
 import Navbar from "./component/Navbar.jsx";
@@ -9,33 +9,32 @@ import Baner from "./component/Baner.jsx";
 import SignUpModal from "./component/SignUpModal.jsx";
 
 function App() {
+  const [watchlists, setWatchlists] = useState([]);
 
-  const [watchlists, setWatchlists]= useState([])
+  const handleAddWatchlist = (movObj) => {
+    let newWatchlist = [...watchlists, movObj];
+    localStorage.setItem("MovieList", JSON.stringify(newWatchlist));
+    setWatchlists(newWatchlist);
+    console.log(newWatchlist);
+  };
 
-  const handleAddWatchlist = (movObj)=>{
-   let newWatchlist= [...watchlists, movObj]
-   localStorage.setItem("MovieList", JSON.stringify(newWatchlist))
-    setWatchlists(newWatchlist)
-    console.log(newWatchlist)
-  }
+  let removeFromWatchlist = (movObj) => {
+    let removedList = watchlists.filter((movie) => {
+      return movie.id != movObj.id;
+    });
+    setWatchlists(removedList);
+    localStorage.setItem("MovieList", JSON.stringify(removedList));
 
-  let removeFromWatchlist =(movObj)=>{
-    let removedList = watchlists.filter((movie)=>{
-      return movie.id != movObj.id
-    })
-    setWatchlists(removedList)
-        localStorage.setItem("MovieList",JSON.stringify(removedList))
+    console.log(removedList);
+  };
 
-    console.log(removedList)
-  }
-
-  useEffect(()=>{
-    let localMovieList= localStorage.getItem('MovieList')
-    if(!localMovieList){
-        return
+  useEffect(() => {
+    let localMovieList = localStorage.getItem("MovieList");
+    if (!localMovieList) {
+      return;
     }
-    setWatchlists(JSON.parse(localMovieList))
-  },[])
+    setWatchlists(JSON.parse(localMovieList));
+  }, []);
 
   return (
     <>
@@ -45,12 +44,26 @@ function App() {
           <Route
             element={
               <>
-                <Baner /> <Movie handleAddWatchlist={handleAddWatchlist} removeFromWatchlist={removeFromWatchlist} watchlists={watchlists}/>
+                <Baner />{" "}
+                <Movie
+                  handleAddWatchlist={handleAddWatchlist}
+                  removeFromWatchlist={removeFromWatchlist}
+                  watchlists={watchlists}
+                />
               </>
             }
             path="/"
           />
-          <Route element={<Watchlist watchlists={watchlists} setWatchlists={setWatchlists}  removeFromWatchlist={removeFromWatchlist}/>} path="/watchlist" />
+          <Route
+            element={
+              <Watchlist
+                watchlists={watchlists}
+                setWatchlists={setWatchlists}
+                removeFromWatchlist={removeFromWatchlist}
+              />
+            }
+            path="/watchlist"
+          />
         </Routes>
       </BrowserRouter>
     </>
